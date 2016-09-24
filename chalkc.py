@@ -1,4 +1,5 @@
 import re
+import sys
 
 class Internals:
     def __init__(self):
@@ -119,12 +120,11 @@ class Parser:
             print "end if"
 
 p = Parser()
-p.parse("print()")
-p.parse("a = 10")
-p.parse("b = 10")
-p.parse("if @a == @b then")
-p.parse("write Hello!")
-p.parse("   if @b != 11 then")
-p.parse("       write true")
-p.parse("   end if")
-p.parse("end if")
+for arg in range(0, len(sys.argv)):
+    if arg != 0:
+        try:
+            argFile = open(sys.argv[arg], "rb")
+            for line in argFile:
+                p.parse(line)
+        except:
+            pass
