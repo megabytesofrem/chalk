@@ -32,7 +32,8 @@ end for
 ### While Loops
 Loop while a condition is not met.
 ```
+-- Will never ever be false! :D
 while @likes_coding == true do
-  write Coding is amazing!
+  write "Coding is amazing!"
 end while
 ```
