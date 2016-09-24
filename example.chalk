@@ -1,7 +1,7 @@
 a = 10
 b = 10
 if @a == @b then
-	write Hello!
+	write Hello, @a equals @b
 	if @b != 11 then
 		write true
 	end if

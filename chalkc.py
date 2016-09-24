@@ -28,7 +28,12 @@ class Parser:
 
     def checkVar(self, var):
         if var[0] == "@":
-            return self.internals.localVars[var[1:]]
+            try:
+                return self.internals.localVars[var[1:]]
+            except:
+                return var
+        else:
+            return var
 
     def error(self, fatal, msg):
         if fatal:
@@ -152,12 +157,11 @@ class Parser:
 
             elif line[0] == "write":
                 if not self.insideLoop:
-                    msg = " ".join(line[1:])
+                    chopped = line[1:]
+                    for word in range(0, len(chopped)):
+                        chopped[word] = self.checkVar(chopped[word])
 
-                    if msg[0] == "@":
-                        print str(self.internals.localVars[msg[1:]].replace('"', "")),
-                    else:
-                        print str(msg)
+                    print " ".join(chopped)
                 else:
                     self.loops.append("write " + " ".join(line[1:]))
 
