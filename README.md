@@ -1,4 +1,4 @@
-# Chalk 1.2
+# Chalk 1.4
 Simple, easy to learn interpreted programming language.
 ### Hello world!
 `write "Hello world!"`
@@ -12,9 +12,7 @@ has_gf = false
 ```
 
 ### If statements
-Use @variable_name to reference a variable
-
-Bug: only the innermost statements blocks are executed!
+Use @variable_name to reference a variable.
 ```
 animal = "Cat"
 favorite_animal = "Cat"
@@ -24,9 +22,17 @@ end if`
 ```
 
 ### For loops
-Coming soon! 
+Loop through ranges and store the count in a variable. 
 ```
-for 0 to 10 as i loop
-  write @i
+for x in 0 .. 10 do
+  write @x
 end for
+```
+
+### While Loops
+Loop while a condition is not met.
+```
+while @likes_coding == true do
+  write Coding is amazing!
+end while
 ```
