@@ -1,2 +1,2 @@
 # chalk
-Simple, easy to learn interpreted programming language.
+## Simple, easy to learn interpreted programming language.
