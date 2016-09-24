@@ -1,7 +1,7 @@
 # Chalk 1.4
 Simple, easy to learn interpreted programming language.
 ### Hello world!
-`write "Hello world!"`
+`write "Hello world!"
 ### Variables
 Chalk supports integers, strings and boolean data types.
 ```
@@ -36,4 +36,14 @@ Loop while a condition is not met.
 while @likes_coding == true do
   write "Coding is amazing!"
 end while
+```
+
+### Functions
+Geoup common code together for easy use
+```
+func greet(user) {
+  write "Hello @user"
+}
+
+greet("@github")
 ```
