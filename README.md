@@ -13,6 +13,7 @@ has_gf = false
 
 ### If statements
 Use @variable_name to reference a variable
+
 Bug: only the innermost statements blocks are executed!
 ```
 animal = "Cat"
