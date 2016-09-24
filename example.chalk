@@ -2,7 +2,7 @@ a = 10
 b = 10
 if @a == @b then
 	write Hello!
-	if @b != @11 then
+	if @b != 11 then
 		write true
 	end if
 end if
