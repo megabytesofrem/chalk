@@ -3,6 +3,7 @@ import sys
 
 class Internals:
     localVars = {}
+    localFuncs = {}
     def __init__(self):
         pass
 
@@ -11,13 +12,14 @@ class Parser:
 
     run = True
     insideLoop = False
-    insideSubs = False
+    insideFunc = False
     loops = []
+    blocks = []
 
     loopStart = 0
     loopEnd = 0
     loopOp = ""
-    subs = ""
+    funcName = ""
     mem = []
 
     def __init__(self):
@@ -34,6 +36,12 @@ class Parser:
                 return var
         else:
             return var
+
+    def createFunc(self, name, blocks):
+        try:
+            return self.internals.localFuncs[name]
+        except:
+            self.internals.localFuncs[name] = blocks
 
     def error(self, fatal, msg):
         if fatal:
@@ -76,11 +84,14 @@ class Parser:
                     else:
                         self.error(True, "Expected either ==, !=, <, >, <=, >= but got " + line[2])
                 else:
-                    self.loops.append("if " + line[1] + " " + line[2] + " " + line[3] + " then")
+                    if self.insideFunc:
+                        self.blocks.append("if " + line[1] + " " + line[2] + " " + line[3] + " then")
+                    elif self.insideLoop:
+                        self.loops.append("if " + line[1] + " " + line[2] + " " + line[3] + " then")
 
             # for i in 0 .. 10 do
             elif line[0] == "for":
-                if line[6] == "do":
+                if line[6] == "{":
                     self.mem.append("for")
                     self.loopStart = int(line[3])
                     self.loopEnd = int(line[5])
@@ -88,82 +99,106 @@ class Parser:
                 else:
                     self.error(True, "Expected do but got " + line[6])
 
+            # func x { .. }
+            elif line[0] == "func":
+                if line[2] == "{":
+                    print "inside function"
+                    self.mem.append("function")
+                    self.funcName = line[1]
+                    self.insideFunc = True
+                else:
+                    self.error(True, "Expected { but got " + line[2])
+
             # while @a != @b do
             elif line[0] == "while":
                 self.mem.append("while")
-                if line[1] == "true":
-                    self.loopStart = "true"
-                elif line[1] == "false":
-                    self.loopStart = "false"
-                elif line[1][0] == "@":
-                    self.loopStart = self.internals.localVars[line[1][1:]]
+                if not self.insideFunc:
+                    if line[1] == "true":
+                        self.loopStart = "true"
+                    elif line[1] == "false":
+                        self.loopStart = "false"
+                    elif line[1][0] == "@":
+                        self.loopStart = self.internals.localVars[line[1][1:]]
+                    else:
+                        self.error(True, "Expected either true, false or @name but got " + line[1])
+
+                    if line[2] == "!=":
+                        self.loopOp = "!="
+                    elif line[2] == "==":
+                        self.loopOp = "=="
+                    else:
+                        self.error(True, "Expected either == or != but got " + line[2])
+
+                    if line[3] == "true":
+                        self.loopEnd = "true"
+                    elif line[3] == "false":
+                        self.loopEnd = "false"
+                    elif line[3][0] == "@":
+                        self.loopEnd = self.internals.localVars[line[3][1:]]
+                    else:
+                        self.loopEnd = line[3]
+
+                    self.insideLoop = True
                 else:
-                    self.error(True, "Expected either true, false or @name but got " + line[1])
-
-                if line[2] == "!=":
-                    self.loopOp = "!="
-                elif line[2] == "==":
-                    self.loopOp = "=="
-                else:
-                    self.error(True, "Expected either == or != but got " + line[2])
-
-                if line[3] == "true":
-                    self.loopEnd = "true"
-                elif line[3] == "false":
-                    self.loopEnd = "false"
-                elif line[3][0] == "@":
-                    self.loopEnd = self.internals.localVars[line[3][1:]]
-                else:
-                    self.loopEnd = line[3]
-
-                self.insideLoop = True
+                    self.blocks.append("while " + line[1] + " " + line[2] + " " + line[3] + "{")
 
 
-            elif line[0] == "end":
-                if line[1] == "if":
-                    if not self.insideLoop:
+            elif line[0] == "}":
+                if not self.insideLoop:
+                    try:
                         if self.mem[-1] == "if":
                             del self.mem[-1]
-                    else:
-                        self.loops.append("end if")
+                    except:
+                        try:
+                            if self.mem[-1] == "for":
+                                del self.mem[-1]
+                                self.insideLoop = False
 
-                elif line[1] == "for":
-                    if self.mem[-1] == "for":
-                        del self.mem[-1]
-                        self.insideLoop = False
+                                for i in range(self.loopStart, self.loopEnd):
+                                    for loop in self.loops:
+                                        self.parse(loop)
+                                self.loops = []
+                        except:
+                            try:
+                                if self.mem[-1] == "while":
+                                    del self.mem[-1]
+                                    self.insideLoop = False
 
-                        for i in range(self.loopStart, self.loopEnd):
-                            for loop in self.loops:
-                                self.parse(loop)
-                        self.loops = []
-
-                elif line[1] == "while":
-                    if self.mem[-1] == "while":
-                        del self.mem[-1]
-                        self.insideLoop = False
-
-                        if self.loopOp == "==":
-                            while self.loopStart == self.loopEnd:
-                                for loop in self.loops:
-                                    self.parse(loop)
-                            self.loops = []
-                        elif self.loopOp == "!=":
-                            while self.loopStart != self.loopEnd:
-                                for loop in self.loops:
-                                    self.parse(loop)
-                            self.loops = []
-                        else:
-                            self.error(True, "Expected either == or != but got " + self.loopOp)
+                                    if self.loopOp == "==":
+                                        while self.loopStart == self.loopEnd:
+                                            for loop in self.loops:
+                                                self.parse(loop)
+                                        self.loops = []
+                                    elif self.loopOp == "!=":
+                                        while self.loopStart != self.loopEnd:
+                                            for loop in self.loops:
+                                                self.parse(loop)
+                                        self.loops = []
+                                    else:
+                                        self.error(True, "Expected either == or != but got " + self.loopOp)
+                            except:
+                                try:
+                                    if self.mem[-1] == "function":
+                                        del self.mem[-1]
+                                        print self.funcName
+                                        for block in self.blocks:
+                                            print block
+                                except Exception as e:
+                                    print e
 
             elif line[0] == "write":
-                if not self.insideLoop:
+                if not self.insideLoop and not self.insideFunc:
                     chopped = line[1:]
                     for word in range(0, len(chopped)):
                         chopped[word] = self.checkVar(chopped[word])
 
                     print " ".join(chopped)
-                else:
+
+                if self.insideLoop:
                     self.loops.append("write " + " ".join(line[1:]))
+
+                if self.insideFunc:
+                    self.blocks.append("write " + " ".join(line[1:]))
 
             elif line[0] == "read":
                 if not self.insideLoop:
@@ -188,6 +223,13 @@ class Parser:
                         self.internals.localVars[line[0]] += line[2]
                     else:
                         self.internals.localVars[line[0]] += line[2]
+                elif line[1] == "-=":
+                    if line[2][0] == '"' and line[2][len(line) - 1] == '"':
+                        self.internals.localVars[line[0]] -= line[2].strip('"')
+                    elif line[2] == "true" or line[2] == "false":
+                        self.internals.localVars[line[0]] -= line[2]
+                    else:
+                        self.internals.localVars[line[0]] -= line[2]
                 if line[0][0:1] == "--":
                     pass
 
