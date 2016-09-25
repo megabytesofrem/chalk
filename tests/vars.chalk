@@ -1,0 +1,7 @@
+-- Should print `Var a is 10` AND `Var b is 20`
+
+a = 10
+b = 20
+
+write Var a is @b
+write Var b is @b

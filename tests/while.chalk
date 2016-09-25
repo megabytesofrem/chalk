@@ -1,0 +1,5 @@
+-- Should print `Message Example` forever
+
+while true == true {
+  write Message Example
+}

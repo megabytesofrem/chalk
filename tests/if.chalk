@@ -1,0 +1,8 @@
+-- Should print `Only this message should be displayed`
+
+if test == test {
+  write Only this message should be displayed
+  if test != test {
+    write Something went wrong
+  }
+}
