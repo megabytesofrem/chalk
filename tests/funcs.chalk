@@ -1,0 +1,7 @@
+-- Should print `Hello Test`
+
+func greet (name) {
+  write Hello @name
+}
+
+greet (Test)
