@@ -1,0 +1,3 @@
+-- Should print `Test passed`
+
+write "Test passed"
