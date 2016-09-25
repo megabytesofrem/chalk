@@ -1,7 +1,7 @@
 # Chalk 1.4
 Simple, easy to learn interpreted programming language.
 ### Hello world!
-`write "Hello world!"
+`write "Hello world!"`
 ### Variables
 Chalk supports integers, strings and boolean data types.
 ```
@@ -12,7 +12,7 @@ has_gf = false
 ```
 
 ### If statements
-Use @variable_name to reference a variable.
+Compare two values or variables and execute some code if they do or don't match
 ```
 animal = "Cat"
 favorite_animal = "Cat"
@@ -22,28 +22,28 @@ end if`
 ```
 
 ### For loops
-Loop through ranges and store the count in a variable. 
+Repeat blocks of code as many times as you want
 ```
-for x in 0 .. 10 do
+for x in 0 .. 10 {
   write @x
-end for
+}
 ```
 
 ### While Loops
-Loop while a condition is not met.
+Repeat blocks of code while a condition is or isn't met
 ```
 -- Will never ever be false! :D
-while @likes_coding == true do
+while @likes_coding == true {
   write "Coding is amazing!"
-end while
+}
 ```
 
 ### Functions
-Geoup common code together for easy use
+Group blocks of code for easy access and less repetition.
 ```
-func greet(user) {
+func greet (user) {
   write "Hello @user"
 }
 
-greet("@github")
+greet ("@github")
 ```
