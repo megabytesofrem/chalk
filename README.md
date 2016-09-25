@@ -1,5 +1,6 @@
-# Chalk 1.4
+# Chalk 1.5
 Simple, easy to learn interpreted programming language.
+Chalk is dynamic, and typeless which means it infers from what you enter.
 ### Hello world!
 `write "Hello world!"`
 ### Variables
