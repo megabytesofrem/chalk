@@ -1,6 +1,11 @@
 # Chalk 1.5
 Simple, easy to learn interpreted programming language.
+
 Chalk is dynamic, and typeless which means it infers from what you enter.
+
+Here are some basic examples of Chalk programming.
+
+More can be found in the /tests/ folder.
 ### Hello world!
 `write "Hello world!"`
 ### Variables
