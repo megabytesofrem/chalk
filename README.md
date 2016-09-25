@@ -16,9 +16,9 @@ Compare two values or variables and execute some code if they do or don't match
 ```
 animal = "Cat"
 favorite_animal = "Cat"
-if @animal == @favorite_animal then
+if @animal == @favorite_animal {
   write "You like cats too huh?"
-end if`
+}
 ```
 
 ### For loops
