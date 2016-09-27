@@ -52,27 +52,27 @@ class Parser:
             print line
             self.error(True, "Does not follow string formatting")
 
-    def compare(self, strings, compare):
+    def compare(self, strings, operator):
         run = True
         for i in range(0, 2):
             strings[i] = self.renderString(strings[i])
 
-        if compare == "==":
+        if operator == "==":
             if strings[0] != strings[1]:
                 run = False
-        elif compare == "!=":
+        elif operator == "!=":
             if strings[0] == strings[1]:
                 run = False
-        elif compare == ">":
+        elif operator == ">":
             if int(strings[0]) < int(strings[1]):
                 run = False
-        elif compare == "<":
+        elif operator == "<":
             if int(strings[0]) > int(strings[1]):
                 run = False
-        elif compare == ">=":
+        elif operator == ">=":
             if int(strings[0]) <= int(strings[1]):
                 run = False
-        elif compare == "<=":
+        elif operator == "<=":
             if int(strings[0]) >= int(strings[1]):
                 run = False
         else:
@@ -87,16 +87,22 @@ class Parser:
         line = ln.split(" ")
 
         if line[0] == "}":
-            self.run = True
-            if self.mem[-1][0] == "function":
-                # globalFunc[function] = [[blocks], [params]]
-                # Function memory entry
-                # mem = ["function", [blocks], [name, [params]]
-                self.internals.globalFuncs[self.mem[-1][2][0]] = [self.mem[-1][1], self.mem[-1][2][1]]
-            elif self.mem[-1][0] == "while":
-                # While memory entry
-                # mem = ["while", [blocks], ["true", "==", "true"]]
-                pass
+            if len(self.mem) > 0:
+                self.run = True
+                if self.mem[-1][0] == "function":
+                    # globalFunc[function] = [[blocks], [params]]
+                    # Function memory entry
+                    # mem = ["function", [blocks], [name, [params]]
+                    self.internals.globalFuncs[self.mem[-1][2][0]] = [self.mem[-1][1], self.mem[-1][2][1]]
+                elif self.mem[-1][0] == "while":
+                    # While memory entry
+                    # mem = ["while", [blocks], ["true", "==", "true"]]
+                    while self.compare([self.mem[-1][2][0], self.mem[-1][2][2]], self.mem[-1][2][1]):
+                        for block in self.mem[-1][1]:
+                            self.parse(block)
+
+            else:
+                self.error(True, "Unexpected end of block")
 
         elif self.run == False:
             self.mem[-1][1].append(ln)
@@ -112,10 +118,8 @@ class Parser:
         # while param = param { .. }
         elif line[0] == "while":
             if line[4] == "{":
-                if self.compare([line[1], line[3]], line[2]):
-                    self.mem.append(["while", []])
-                else:
-                    self.run = False
+                self.run = False
+                self.mem.append(["while", [], [line[1], line[2], line[3]]])
             else:
                 self.error(True, "Expected { but got " + line[4])
 
@@ -134,13 +138,11 @@ class Parser:
         elif line[0] == "write":
             print(self.renderString(" ".join(line[1:])))
 
-        # Pushed for a fast pull, next commit will fix this
-        #elif line[0] == "read":
-        #    if not self.insideLoop:
-        #        pieces = line[1]
-        #        self.internals.localVars[line[1]] = raw_input("")
-        #    else:
-        #        self.loops.append("read " + pieces[0] + " " + pieces[1])
+        # read @var
+        elif line[0] == "read":
+            if line[1][0] == "@":
+                read = raw_input()
+                self.internals.globalVars[line[1][1:]] = read;
 
         # Declares a variable
         elif len(line) >= 3:

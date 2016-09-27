@@ -1,6 +1,7 @@
-func dude (none) {
-	write hey
-	read x
+func greet (name) {
+	write "Hello @name"
 }
 
-dude ()
+write "What's your name?"
+read @name
+greet ("@name")
