@@ -26,10 +26,10 @@ class Parser:
 
     def error(self, fatal, msg):
         if fatal:
-            print "[FATAL] " + msg
+            print("[FATAL] " + msg)
             sys.exit()
         else:
-            print "[ERROR] " + msg
+            print("[ERROR] " + msg)
 
     def saveGlobalVar(self, name, content):
         self.internals.globalVars[name] = content
@@ -49,7 +49,7 @@ class Parser:
                     lineSplit[word] = str(self.renderGlobalVar(lineSplit[word][1:]))
             return " ".join(lineSplit)
         else:
-            print line
+            print(line)
             self.error(True, "Does not follow string formatting")
 
     def compare(self, strings, operator):
@@ -136,12 +136,12 @@ class Parser:
                 self.error(True, "Expected { but got " + line[3])
 
         elif line[0] == "write":
-            print(self.renderString(" ".join(line[1:])))
+            print((self.renderString(" ".join(line[1:]))))
 
         # read @var
         elif line[0] == "read":
             if line[1][0] == "@":
-                read = raw_input()
+                read = input()
                 self.internals.globalVars[line[1][1:]] = read;
 
         # Declares a variable

@@ -1,5 +1,5 @@
-# Chalk 1.5
-Simple, easy to learn interpreted programming language.
+# Chalk
+Simple, easy to learn interpreted programming language written in Python 3.
 
 Chalk is dynamic, and typeless which means it infers from what you enter.
 
