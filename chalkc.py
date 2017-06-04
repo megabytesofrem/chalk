@@ -1,5 +1,8 @@
-import re
 import sys
+import os
+
+# Custom imports
+import error
 
 class Internals:
     globalVars = {}
@@ -24,13 +27,6 @@ class Parser:
         else:
             return line.replace("\t", "").lstrip()
 
-    def error(self, fatal, msg):
-        if fatal:
-            print("[FATAL] " + msg)
-            sys.exit()
-        else:
-            print("[ERROR] " + msg)
-
     def saveGlobalVar(self, name, content):
         self.internals.globalVars[name] = content
 
@@ -38,7 +34,7 @@ class Parser:
         try:
             return self.internals.globalVars[var]
         except:
-            self.error(True, "Undefined variable " + var)
+            error.throwFatal("UndefinedVariable", "`" + var + "` does not exist")
 
     def renderString(self, line):
         if (line[0] == "\"" and line[-1] == "\""):
@@ -50,7 +46,7 @@ class Parser:
             return " ".join(lineSplit)
         else:
             print(line)
-            self.error(True, "Does not follow string formatting")
+            error.throwFatal("SyntaxError", "Does not follow string formatting")
 
     def compare(self, strings, operator):
         run = True
@@ -76,7 +72,7 @@ class Parser:
             if int(strings[0]) >= int(strings[1]):
                 run = False
         else:
-            self.error(True, "Expected either ==, !=, <, >, <=, >= but got " + line[2])
+            error.throwFatal("InvalidSyntax", "`" + line[2] + "` is not a valid comparator")
             run = None
 
         if run != None:
@@ -102,7 +98,7 @@ class Parser:
                             self.parse(block)
 
             else:
-                self.error(True, "Unexpected end of block")
+                error.throwFatal("InvalidSyntax", "Unexpected end of block")
 
         elif self.run == False:
             self.mem[-1][1].append(ln)
@@ -113,7 +109,7 @@ class Parser:
                 self.mem.append(["if", []])
                 self.run = self.compare([line[1], line[3]], line[2])
             else:
-                self.error(True, "Expected { but got " + line[4])
+                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
 
         # while param = param { .. }
         elif line[0] == "while":
@@ -121,7 +117,7 @@ class Parser:
                 self.run = False
                 self.mem.append(["while", [], [line[1], line[2], line[3]]])
             else:
-                self.error(True, "Expected { but got " + line[4])
+                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
 
         # func x (param1,param2) { .. }
         elif line[0] == "func":
@@ -133,7 +129,7 @@ class Parser:
                 self.run = False
                 self.mem.append(["function", [], [line[1], params]])
             else:
-                self.error(True, "Expected { but got " + line[3])
+                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
 
         elif line[0] == "write":
             print((self.renderString(" ".join(line[1:]))))
@@ -175,13 +171,14 @@ class Parser:
 
         # No statment found
         else:
-            self.error(True, "Expected a valid statement but got " + line[0])
+            error.throwFatal("UndefinedStatement", "`" + line[0] + "` is not a valid statement")
 
 p = Parser()
-for arg in range(0, len(sys.argv)):
-    if arg != 0:
-        argFile = open(sys.argv[arg], "r")
-        argFile = argFile.read().split("\n")
-        for line in argFile:
+for arg in sys.argv:
+    if os.path.isfile(arg) and arg[-6:] == ".chalk":
+        openFile = open(arg, "r")
+        openFile = openFile.read().split("\n")
+        for line in openFile:
             if line:
                 p.parse(line)
+        break
