@@ -1,12 +1,12 @@
-# Chalk
+# Chalk (archive)
+An old project from 2016/2017 started by my friend Dhillon. This is an archive but if you would like to start this project back up then feel free to contribute and I will follow suit.
+
 Simple, easy to learn interpreted programming language written in Python 3.
 
 Chalk is dynamic, and typeless which means it infers from what you enter.
 
 ## Contributing
 Feel free to contribute, please be descriptive in the pull request.
-
-We also have a Telegram chat to discuss changes and the future direction of the language. Check it out [here](https://telegram.me/joinchat/EHl7-UEEO0TzENj0oAxz0Q).
 
 ## Usage
 
