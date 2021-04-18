@@ -1,8 +1,17 @@
 import sys
 import os
 
-# Custom imports
-import error
+class ChalkSyntaxError(Exception):
+    pass
+    
+class ChalkParserError(Exception):
+    pass
+
+class ChalkUndefinedVariable(Exception):
+    pass
+
+class ChalkUndefinedStatement(Exception):
+    pass
 
 class Internals:
     globalVars = {}
@@ -34,7 +43,7 @@ class Parser:
         try:
             return self.internals.globalVars[var]
         except:
-            error.throwFatal("UndefinedVariable", "`" + var + "` does not exist")
+            raise ChalkUndefinedVariable("`%s` does not exist" % var)
 
     def renderString(self, line):
         if (line[0] == "\"" and line[-1] == "\""):
@@ -45,8 +54,7 @@ class Parser:
                     lineSplit[word] = str(self.renderGlobalVar(lineSplit[word][1:]))
             return " ".join(lineSplit)
         else:
-            print(line)
-            error.throwFatal("SyntaxError", "Does not follow string formatting")
+            raise ChalkSyntaxError("Does not follow string formatting")
 
     def compare(self, strings, operator):
         run = True
@@ -72,13 +80,14 @@ class Parser:
             if int(strings[0]) >= int(strings[1]):
                 run = False
         else:
-            error.throwFatal("InvalidSyntax", "`" + line[2] + "` is not a valid comparator")
-            run = None
+            raise ChalkSyntaxError("`%s` is not a valid comparator" % line[2])
 
         if run != None:
             return run
 
     def parse(self, ln):
+        buffer = []
+        
         ln = self.chomp(ln)
         line = ln.split(" ")
 
@@ -95,10 +104,10 @@ class Parser:
                     # mem = ["while", [blocks], ["true", "==", "true"]]
                     while self.compare([self.mem[-1][2][0], self.mem[-1][2][2]], self.mem[-1][2][1]):
                         for block in self.mem[-1][1]:
-                            self.parse(block)
+                            buffer += self.parse(block)
 
             else:
-                error.throwFatal("InvalidSyntax", "Unexpected end of block")
+                raise ChalkSyntaxError("Unexpected end of block")
 
         elif self.run == False:
             self.mem[-1][1].append(ln)
@@ -109,7 +118,7 @@ class Parser:
                 self.mem.append(["if", []])
                 self.run = self.compare([line[1], line[3]], line[2])
             else:
-                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
+                raise ChalkSyntaxError("Expected `{` instead of `%s`" % line[4])
 
         # while param = param { .. }
         elif line[0] == "while":
@@ -117,7 +126,7 @@ class Parser:
                 self.run = False
                 self.mem.append(["while", [], [line[1], line[2], line[3]]])
             else:
-                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
+                raise ChalkSyntaxError("Expected `{` instead of `%s`" % line[4])
 
         # func x (param1,param2) { .. }
         elif line[0] == "func":
@@ -129,16 +138,16 @@ class Parser:
                 self.run = False
                 self.mem.append(["function", [], [line[1], params]])
             else:
-                error.throwFatal("InvalidSyntax", "Expected `{` instead of `" + line[4] + "`")
+                raise ChalkSyntaxError("Expected `{` instead of `%s`" % line[4])
 
         elif line[0] == "write":
-            print((self.renderString(" ".join(line[1:]))))
+            buffer.append(self.renderString(" ".join(line[1:])))
 
         # read @var
-        elif line[0] == "read":
-            if line[1][0] == "@":
-                read = input()
-                self.internals.globalVars[line[1][1:]] = read;
+       #  elif line[0] == "read":
+#             if line[1][0] == "@":
+#                 read = input()
+#                 self.internals.globalVars[line[1][1:]] = read;
 
         # Declares a variable
         elif len(line) >= 3:
@@ -172,13 +181,14 @@ class Parser:
         # No statment found
         else:
             error.throwFatal("UndefinedStatement", "`" + line[0] + "` is not a valid statement")
+        return buffer
 
-p = Parser()
-for arg in sys.argv:
-    if os.path.isfile(arg) and arg[-6:] == ".chalk":
-        openFile = open(arg, "r")
-        openFile = openFile.read().split("\n")
-        for line in openFile:
-            if line:
-                p.parse(line)
-        break
+# p = Parser()
+# for arg in sys.argv:
+#     if os.path.isfile(arg) and arg[-6:] == ".chalk":
+#         openFile = open(arg, "r")
+#         openFile = openFile.read().split("\n")
+#         for line in openFile:
+#             if line:
+#                 p.parse(line)
+#         break
