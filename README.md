@@ -6,7 +6,7 @@ Chalk is dynamic, and typeless which means it infers from what you enter.
 
 ## A message from 2021
 
-5 years later and wiser, me and Charlotte feel the same way about Chalk as how historians feel when studying the pyramids. We don't understand how despite the bad code quality and severe lack of experience that some parts, like if statements, work well. Chalk has only stuck around because against all odds a project from when we knew very little turned out cool. It feels like a monkey and a typewriter situation.
+5 years later and wiser, me and Alice feel the same way about Chalk as how historians feel when studying the pyramids. We don't understand how despite the bad code quality and severe lack of experience that some parts, like if statements, work well. Chalk has only stuck around because against all odds a project from when we knew very little turned out cool. It feels like a monkey and a typewriter situation.
 
 I've added C bindings to the Python class so I could add it to a chat bot written in another language, at least now the c at the end of `chalkc.py` resembles reality. Details about the C bindings are listed below.
 
